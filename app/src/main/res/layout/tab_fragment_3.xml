@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:scrollIndicators="left">
+
+        <EditText
+            android:id="@+id/edittext_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Navn"
+            android:maxWidth="300dp"
+            android:layout_marginTop="20dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kjører gjennom bomstasjon"
+            android:textSize="15dp"
+            android:layout_marginTop="20dp"/>
+
+        <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/settingsRadiogrp"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="10dp"
+            >
+
+            <RadioButton android:id="@+id/radio_moss"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Moss"/>
+            <RadioButton android:id="@+id/radio_oslo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Oslo"/>
+            <RadioButton android:id="@+id/radio_drammen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Drammen"/>
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Regnr til bil"
+            android:textSize="15dp"
+            android:layout_marginTop="20dp"/>
+        <EditText
+            android:id="@+id/edittext_regnr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Regnr"
+            android:maxWidth="300dp"
+            android:layout_marginTop="5dp"/>
+
+        <DatePicker
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:id="@+id/timePicker"
+            android:layout_gravity="center_horizontal"/>
+        <Button
+            android:id="@+id/register_btn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:text="Registrer"/>
+    </LinearLayout>
+</RelativeLayout>
+</ScrollView>
