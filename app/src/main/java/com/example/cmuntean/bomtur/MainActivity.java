@@ -14,12 +14,17 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.PopupWindow;
+import android.view.ViewGroup.LayoutParams;
 
-public class MainActivity extends AppCompatActivity implements LocationListener {
+public class MainActivity extends AppCompatActivity {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -41,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         setContentView(R.layout.activity_main);
 
         setStatusbarColor();
+
 
         /*LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
@@ -80,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             }
         });
 
+
     }
 
     private void setStatusbarColor(){
@@ -113,31 +120,4 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * @return the last know best location
-     */
-
-
-    @Override
-    public void onLocationChanged(Location location) {
-        double latitude = (double) (location.getLatitude());
-        double longitude = (double) (location.getLongitude());
-
-        Log.i("Geo_Location", "Latitude: " + latitude + ", Longitude: " + longitude);
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
-    }
 }

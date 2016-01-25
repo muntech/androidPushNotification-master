@@ -11,16 +11,33 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.parse.ParsePushBroadcastReceiver;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PushNotificationReceiver extends ParsePushBroadcastReceiver implements LocationListener {
     private final String TAG = "PUSH_NOTIF";
-    public static double currentLat = 0;
-    public static double currentLng = 0;
+    public String currentLat = "";
+    public String currentLng = "";
     public static Date currentDate = null;
+    private TabFragment1 tabFragment1;
+    String myusername;
 
     @Override
     public void onPushOpen(Context context, Intent intent) {
@@ -49,7 +66,7 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver impleme
         Log.i(TAG,"title is " + title);
 
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        getLocation(locationManager);
+        getLocation(context, locationManager);
 
         Intent cIntent = new Intent(PushNotificationReceiver.ACTION_PUSH_OPEN);
         cIntent.putExtras(intent.getExtras());
@@ -74,15 +91,78 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver impleme
         myNotificationManager.notify(1, builder.build());
     }
 
-    private void getLocation(LocationManager locationManager){
+    private void getLocation(Context context, LocationManager locationManager){
         Criteria criteria = new Criteria();
         String provider = LocationManager.GPS_PROVIDER;
         provider = locationManager.getBestProvider(criteria, false);
         // Get last known location
         Location location = locationManager.getLastKnownLocation(provider);
-        currentLat = location.getLatitude();
-        currentLng = location.getLongitude();
+        currentLat = location.getLatitude() + "";
+        currentLng = location.getLongitude() + "";
+
         currentDate = new Date();
+
+        String username = tabFragment1.usernameResponse;
+
+        try {
+            JSONObject object = new JSONObject(username);
+            myusername = object.getString("ID");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println(myusername);
+        postLocation(context, currentLat, currentLng, currentDate.toString(), myusername);
+    }
+
+    private void postLocation(Context context, String lat, String lng, String date, String driverID){
+        RequestQueue queue = Volley.newRequestQueue(context);
+        String url = "https://df-bomtur.enterprise.dreamfactory.com:443/api/v2/bomtur/_table/Driver/" + driverID;
+        JSONObject js = new JSONObject();
+
+        try {
+            js.put("Lat", lat);
+            js.put("Lng", lng);
+            js.put("TimeStamp",date);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.PATCH, url,js,
+                new Response.Listener<JSONObject>()
+                {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                    }
+                },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO Auto-generated method stub
+                        Log.d("ERROR","error => "+error.toString());
+                    }
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("X-DreamFactory-Api-Key", "760f7c2f81c40d37c5b619215e39a66e98c62b50024c146bc77a46e5e081236f");
+                //params.put("Accept-Language", "fr");
+
+                return params;
+            }
+            /*@Override
+            protected Map<String, String> getParams()
+            {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("ID", "test");
+                params.put("Name", "test");
+                return params;
+            }*/
+        };
+        queue.add(jsonObjReq);
     }
 
     @Override
