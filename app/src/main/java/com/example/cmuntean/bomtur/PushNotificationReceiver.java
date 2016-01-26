@@ -9,6 +9,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
@@ -20,9 +21,15 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderApi;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.parse.ParsePushBroadcastReceiver;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,13 +38,22 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PushNotificationReceiver extends ParsePushBroadcastReceiver implements LocationListener {
+public class PushNotificationReceiver extends ParsePushBroadcastReceiver implements  LocationListener{
     private final String TAG = "PUSH_NOTIF";
     public String currentLat = "";
     public String currentLng = "";
     public static Date currentDate = null;
     private TabFragment1 tabFragment1;
     String myusername;
+    private Location mLastLocation;
+    // Google client to interact with Google API
+    private static GoogleApiClient mGoogleApiClient;
+    private LocationRequest locationRequest;
+    private com.google.android.gms.location.LocationListener locationListener;
+    private FusedLocationProviderApi fusedLocationProviderApi;
+    private MainActivity mainActivity;
+
+
 
     @Override
     public void onPushOpen(Context context, Intent intent) {
@@ -51,6 +67,7 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver impleme
     @Override
     public void onPushReceive(Context context, Intent intent) {
         Log.i(TAG, "onPushReceive triggered!");
+
 
         JSONObject pushData;
         String alert = null;
@@ -91,28 +108,25 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver impleme
         myNotificationManager.notify(1, builder.build());
     }
 
-    private void getLocation(Context context, LocationManager locationManager){
+    private void getLocation(Context context, final LocationManager locationManager){
         Criteria criteria = new Criteria();
         String provider = LocationManager.GPS_PROVIDER;
         provider = locationManager.getBestProvider(criteria, false);
         // Get last known location
-        Location location = locationManager.getLastKnownLocation(provider);
-        currentLat = location.getLatitude() + "";
-        currentLng = location.getLongitude() + "";
 
-        currentDate = new Date();
+       // Location location = locationManager.getLastKnownLocation(provider);
 
-        String username = tabFragment1.usernameResponse;
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
 
-        try {
-            JSONObject object = new JSONObject(username);
-            myusername = object.getString("ID");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println(myusername);
-        postLocation(context, currentLat, currentLng, currentDate.toString(), myusername);
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                locationManager.removeUpdates(PushNotificationReceiver.this);
+                Log.v(TAG, "Stoping DB writing");
+            }
+        }, 5000);
     }
 
     private void postLocation(Context context, String lat, String lng, String date, String driverID){
@@ -165,9 +179,25 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver impleme
         queue.add(jsonObjReq);
     }
 
+
     @Override
     public void onLocationChanged(Location location) {
+        Log.v(TAG, "IN ON LOCATION CHANGE, lat=" + location.getLatitude() + ", lon=" + location.getLongitude());
+        currentLat = location.getLatitude() + "";
+        currentLng = location.getLongitude() + "";
 
+        currentDate = new Date();
+
+        String username = tabFragment1.usernameResponse;
+
+        try {
+            JSONObject object = new JSONObject(username);
+            myusername = object.getString("ID");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        postLocation(mainActivity.getAppContext(), currentLat, currentLng, currentDate.toString(), myusername);
     }
 
     @Override

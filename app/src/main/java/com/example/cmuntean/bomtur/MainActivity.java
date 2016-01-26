@@ -25,7 +25,7 @@ import android.widget.PopupWindow;
 import android.view.ViewGroup.LayoutParams;
 
 public class MainActivity extends AppCompatActivity {
-
+    private static Context context;
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -44,17 +44,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        MainActivity.context = getApplicationContext();
 
         setStatusbarColor();
 
 
-        /*LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        String provider = LocationManager.GPS_PROVIDER;
-        provider = locationManager.getBestProvider(criteria, false);
-        // Get last known location
-        Location location = locationManager.getLastKnownLocation(provider);
-        double lat = location.getLatitude();*/
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -87,6 +81,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+    }
+    public static Context getAppContext() {
+        return MainActivity.context;
     }
 
     private void setStatusbarColor(){
