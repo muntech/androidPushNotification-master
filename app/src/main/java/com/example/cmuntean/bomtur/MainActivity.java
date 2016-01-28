@@ -26,6 +26,7 @@ import android.view.ViewGroup.LayoutParams;
 
 public class MainActivity extends AppCompatActivity {
     private static Context context;
+    public static ViewPager viewPager;
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -55,10 +56,11 @@ public class MainActivity extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("Mine turer"));
         tabLayout.addTab(tabLayout.newTab().setText("Samkjøring"));
-        tabLayout.addTab(tabLayout.newTab().setText("Bomstasjon"));
+        tabLayout.addTab(tabLayout.newTab().setText("Login"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
-        final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
+        viewPager = (ViewPager) findViewById(R.id.pager);
+
         final PagerAdapter adapter = new PagerAdapter
                 (getSupportFragmentManager(), tabLayout.getTabCount());
         viewPager.setAdapter(adapter);
@@ -116,5 +118,4 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
 }

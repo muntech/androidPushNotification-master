@@ -17,9 +17,11 @@ import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
@@ -46,8 +48,8 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver impleme
     public String currentLat = "";
     public String currentLng = "";
     public static Date currentDate = null;
-    private TabFragment1 tabFragment1;
-    String myusername;
+    private TabFragment3 tabFragment3;
+    private String username;
     private Location mLastLocation;
     private LocationManager locationManager;
     // Google client to interact with Google API
@@ -120,22 +122,15 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver impleme
         mlocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
         mlocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
 
-       /* //Stop receiving LOCATION after 5 sec
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                locationManager.removeUpdates(PushNotificationReceiver.this);
-            }
-        }, 5000);*/
     }
 
     private void postLocation(Context context, String lat, String lng, String date, String driverID){
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = "https://df-bomtur.enterprise.dreamfactory.com:443/api/v2/bomtur/_table/Driver/" + driverID;
+        String url = "http://bomtur.northeurope.cloudapp.azure.com:80/rest/bomtur/Driver/";
         JSONObject js = new JSONObject();
 
         try {
+            js.put("id", driverID);
             js.put("Lat", lat);
             js.put("Lng", lng);
             js.put("TimeStamp",date);
@@ -163,8 +158,8 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver impleme
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String>  params = new HashMap<String, String>();
-                params.put("X-DreamFactory-Api-Key", "760f7c2f81c40d37c5b619215e39a66e98c62b50024c146bc77a46e5e081236f");
-                //params.put("Accept-Language", "fr");
+                params.put("X-DreamFactory-Application-Name", "bomtur");
+                //params.put("X-DreamFactory-Session-Token", tabFragment3.userToken);
 
                 return params;
             }
@@ -177,6 +172,11 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver impleme
                 return params;
             }*/
         };
+
+        /*int socketTimeout =10000;//5 seconds - change to what you want
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        jsonObjReq.setRetryPolicy(policy);*/
+
         queue.add(jsonObjReq);
     }
 
@@ -187,16 +187,9 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver impleme
         currentLat = location.getLatitude() + "";
         currentLng = location.getLongitude() + "";
         currentDate = new Date();
-        String username = tabFragment1.usernameResponse;
+        username = tabFragment3.userEmail;
 
-        try {
-            JSONObject object = new JSONObject(username);
-            myusername = object.getString("ID");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        postLocation(mainActivity.getAppContext(), currentLat, currentLng, currentDate.toString(), myusername);
+        postLocation(mainActivity.getAppContext(), currentLat, currentLng, currentDate.toString(), username);
         locationManager.removeUpdates(PushNotificationReceiver.this);
         wakeLock.release();
     }
