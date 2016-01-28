@@ -1,5 +1,6 @@
 package com.example.cmuntean.bomtur;
 
+import android.app.KeyguardManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -10,6 +11,8 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
+import android.support.v4.content.WakefulBroadcastReceiver;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
@@ -46,14 +49,15 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver impleme
     private TabFragment1 tabFragment1;
     String myusername;
     private Location mLastLocation;
+    private LocationManager locationManager;
     // Google client to interact with Google API
     private static GoogleApiClient mGoogleApiClient;
     private LocationRequest locationRequest;
     private com.google.android.gms.location.LocationListener locationListener;
     private FusedLocationProviderApi fusedLocationProviderApi;
     private MainActivity mainActivity;
-
-
+    private PowerManager pm;
+    private PowerManager.WakeLock wakeLock;
 
     @Override
     public void onPushOpen(Context context, Intent intent) {
@@ -68,6 +72,9 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver impleme
     public void onPushReceive(Context context, Intent intent) {
         Log.i(TAG, "onPushReceive triggered!");
 
+        pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        wakeLock = pm.newWakeLock((pm.SCREEN_BRIGHT_WAKE_LOCK | pm.FULL_WAKE_LOCK | pm.ACQUIRE_CAUSES_WAKEUP), "TAG");
+        wakeLock.acquire();
 
         JSONObject pushData;
         String alert = null;
@@ -82,7 +89,7 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver impleme
         Log.i(TAG,"alert is " + alert);
         Log.i(TAG,"title is " + title);
 
-        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         getLocation(context, locationManager);
 
         Intent cIntent = new Intent(PushNotificationReceiver.ACTION_PUSH_OPEN);
@@ -108,25 +115,19 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver impleme
         myNotificationManager.notify(1, builder.build());
     }
 
-    private void getLocation(Context context, final LocationManager locationManager){
-        Criteria criteria = new Criteria();
-        String provider = LocationManager.GPS_PROVIDER;
-        provider = locationManager.getBestProvider(criteria, false);
-        // Get last known location
+    private void getLocation(final Context context, final LocationManager mlocationManager){
 
-       // Location location = locationManager.getLastKnownLocation(provider);
+        mlocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+        mlocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
 
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
-
+       /* //Stop receiving LOCATION after 5 sec
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 locationManager.removeUpdates(PushNotificationReceiver.this);
-                Log.v(TAG, "Stoping DB writing");
             }
-        }, 5000);
+        }, 5000);*/
     }
 
     private void postLocation(Context context, String lat, String lng, String date, String driverID){
@@ -182,12 +183,10 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver impleme
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.v(TAG, "IN ON LOCATION CHANGE, lat=" + location.getLatitude() + ", lon=" + location.getLongitude());
+
         currentLat = location.getLatitude() + "";
         currentLng = location.getLongitude() + "";
-
         currentDate = new Date();
-
         String username = tabFragment1.usernameResponse;
 
         try {
@@ -198,6 +197,8 @@ public class PushNotificationReceiver extends ParsePushBroadcastReceiver impleme
         }
 
         postLocation(mainActivity.getAppContext(), currentLat, currentLng, currentDate.toString(), myusername);
+        locationManager.removeUpdates(PushNotificationReceiver.this);
+        wakeLock.release();
     }
 
     @Override
