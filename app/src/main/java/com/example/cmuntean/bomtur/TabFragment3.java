@@ -11,7 +11,9 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.TimePicker;
 
 import com.android.volley.AuthFailureError;
@@ -48,11 +50,18 @@ public class TabFragment3 extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.tab_fragment_3, container, false);
 
+        final RelativeLayout loginLayout = (RelativeLayout) view.findViewById(R.id.loginLayout);
+        loginLayout.setVisibility(View.VISIBLE);
+
+        final ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
+
         Button btn=(Button)view.findViewById(R.id.buttonLogin);
         btn.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
+                loginLayout.setVisibility(View.INVISIBLE);
+                progressBar.setVisibility(View.VISIBLE);
                 //getUserData(view);
                 getUserToken(view);
 
@@ -122,7 +131,7 @@ public class TabFragment3 extends Fragment {
             }*/
         };
 
-        int socketTimeout =10000;//5 seconds - change to what you want
+        int socketTimeout =7000;//5 seconds - change to what you want
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
         userTokenRequest.setRetryPolicy(policy);
 
@@ -132,10 +141,10 @@ public class TabFragment3 extends Fragment {
 
     public void navigateToFragment(Fragment fragment){
 
-        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        /*FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.pager, fragment);
         transaction.addToBackStack(null);
-        transaction.commit();
+        transaction.commit();*/
 
         mainActivity.viewPager.setCurrentItem(0);
     }
@@ -179,7 +188,7 @@ public class TabFragment3 extends Fragment {
             }*/
         };
 
-        int socketTimeout =15000;//5 seconds - change to what you want
+        int socketTimeout =6000;//5 seconds - change to what you want
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
         userInfoRequest.setRetryPolicy(policy);
 
