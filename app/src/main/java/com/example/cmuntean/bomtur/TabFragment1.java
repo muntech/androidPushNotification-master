@@ -110,7 +110,7 @@ public class TabFragment1 extends Fragment {
                             }
                         }
                     }
-                }, 1500);
+                }, 1800);
     }
 
     private void addViewItem(View view, Context context) throws JSONException {
@@ -147,9 +147,12 @@ public class TabFragment1 extends Fragment {
             priceTextView.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
             priceTextView.setId(R.id.priceTextView);
 
+            SimpleDateFormat timeStampFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+            String DateStr = timeStampFormat.format(passing.getTimeStamp());
+            DateStr = DateStr.replace("-", ".");
 
             final TextView timeStampTextView = new TextView(context);
-            timeStampTextView.setText(passing.getTimeStamp().toString());
+            timeStampTextView.setText(DateStr);
             timeStampTextView.setTextColor(getResources().getColor(R.color.colorPrimary));
             timeStampTextView.setWidth(800);
             timeStampTextView.setHeight(90);
