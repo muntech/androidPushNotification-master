@@ -62,8 +62,8 @@ public class TabFragment3 extends Fragment {
             public void onClick(View v) {
                 loginLayout.setVisibility(View.INVISIBLE);
                 progressBar.setVisibility(View.VISIBLE);
-                //getUserData(view);
-                getUserToken(view);
+
+                getUserData(view);
 
             }
         });
@@ -96,8 +96,6 @@ public class TabFragment3 extends Fragment {
                             userToken = response.getString("session_id");
                             userEmail = response.getString("email");
                             Log.d("UserToken Response", "OK => " + userToken);
-
-                            getUserData();
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -149,10 +147,13 @@ public class TabFragment3 extends Fragment {
         mainActivity.viewPager.setCurrentItem(0);
     }
 
-    private void getUserData(){
+    private void getUserData(View view){
+
+        final EditText editText_username = (EditText)view.findViewById(R.id.username_name_edittext);
+        userEmail= editText_username.getText().toString();
 
         final RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = "http://bomtur.northeurope.cloudapp.azure.com:80/rest/bomtur/Driver?ids="+ userEmail + "&related=Passings_by_DriverID";
+        String url = "http://bomtur.northeurope.cloudapp.azure.com:80/rest/bomtur/Driver?ids="+ editText_username.getText().toString() + "&related=Passings_by_DriverID";
         final StringRequest userInfoRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>()
                 {
@@ -188,7 +189,7 @@ public class TabFragment3 extends Fragment {
             }*/
         };
 
-        int socketTimeout =6000;//5 seconds - change to what you want
+        int socketTimeout =3000;//5 seconds - change to what you want
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
         userInfoRequest.setRetryPolicy(policy);
 

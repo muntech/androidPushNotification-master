@@ -119,7 +119,7 @@ public class TabFragment1 extends Fragment {
         addPassingToList(jsonPassingsArray(), userPassingsList);
         final LinearLayout linearLayout = (LinearLayout) view1.findViewById(R.id.frag1);
 
-        for (int i = 0; i < userPassingsList.size(); i++){
+        for (int i = userPassingsList.size()-1; i > 0; i--){
 
             final Passing passing = userPassingsList.get(i);
 
@@ -147,12 +147,15 @@ public class TabFragment1 extends Fragment {
             priceTextView.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
             priceTextView.setId(R.id.priceTextView);
 
-            SimpleDateFormat timeStampFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-            String DateStr = timeStampFormat.format(passing.getTimeStamp());
-            DateStr = DateStr.replace("-", ".");
 
             final TextView timeStampTextView = new TextView(context);
-            timeStampTextView.setText(DateStr);
+            try {
+                SimpleDateFormat timeStampFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+                String DateStr = timeStampFormat.format(passing.getTimeStamp());
+                DateStr = DateStr.replace("-", ".");
+                timeStampTextView.setText(DateStr);
+            }catch(NullPointerException e){}
+
             timeStampTextView.setTextColor(getResources().getColor(R.color.colorPrimary));
             timeStampTextView.setWidth(800);
             timeStampTextView.setHeight(90);
@@ -217,7 +220,7 @@ public class TabFragment1 extends Fragment {
             passing.setPrice(passingObject.getString("Price"));
             passing.setEmail(passingObject.getString("DriverID"));
 
-            DateFormat format = new SimpleDateFormat("EEE MMM d HH:mm:ss zzz yyyy");
+            DateFormat format = new SimpleDateFormat("EEE MMM d yyyy HH:mm:ss");
             format.setTimeZone(TimeZone.getTimeZone("CET"));
             try {
                 String time = passingObject.getString("TimeStamp");
